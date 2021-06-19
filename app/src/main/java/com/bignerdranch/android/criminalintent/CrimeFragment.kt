@@ -12,12 +12,14 @@ import android.widget.Button
 import android.widget.CheckBox
 import android.widget.EditText
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.ViewModelProvider
 import java.util.*
 
 private const val TAG = "CrimeFragment"
 private const val ARG_CRIME_ID = "crime_id"
-private const val DIALOG_DATE = "DialogDate"
+const val DIALOG_DATE = "DialogDate"
+const val REQUEST_DATE = "RequestDate"
 
 class CrimeFragment : Fragment() {
 
@@ -66,7 +68,6 @@ class CrimeFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         Log.v(TAG, "onViewCreated")
 
         crimeDetailViewModel.crimeLiveData.observe(
@@ -78,6 +79,14 @@ class CrimeFragment : Fragment() {
                 }
             }
         )
+
+        setFragmentResultListener(REQUEST_DATE) { _, bundle ->
+            val date = bundle.getSerializable(DIALOG_DATE) as Date
+            crime.date = date
+            updateUI()
+        }
+
+//        childFragmentManager.setFragmentResultListener(REQUEST_DATE, viewLifecycleOwner, this)
     }
 
     override fun onStart() {
@@ -106,7 +115,7 @@ class CrimeFragment : Fragment() {
         }
 
         dateButton.setOnClickListener {
-            DatePickerFragment().apply {
+            DatePickerFragment.newInstance(crime.date).apply {
                 show(this@CrimeFragment.parentFragmentManager, DIALOG_DATE)
             }
         }
@@ -147,4 +156,14 @@ class CrimeFragment : Fragment() {
             }
         }
     }
+
+//    override fun onFragmentResult(requestKey: String, result: Bundle) {
+//        when (requestKey) {
+//            REQUEST_DATE -> {
+//                val date = result.getSerializable(DIALOG_DATE) as Date
+//                crime.date = date
+//                updateUI()
+//            }
+//        }
+//    }
 }
