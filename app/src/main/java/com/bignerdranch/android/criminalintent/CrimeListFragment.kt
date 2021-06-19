@@ -25,14 +25,25 @@ class CrimeListFragment : Fragment() {
     private var callbacks: Callbacks? = null
 
     private val crimeListViewModel: CrimeListViewModel by lazy {
+        Log.v(TAG, "crimeListViewModel::lazy")
         ViewModelProvider(this).get(CrimeListViewModel::class.java)
     }
+
     private lateinit var crimeRecyclerView: RecyclerView
     private var crimeAdapter: CrimeAdapter = CrimeAdapter(emptyList())
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
+        Log.v(TAG, "onAttach")
+
         callbacks = context as Callbacks?
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        Log.v(TAG, "onCreate($savedInstanceState)")
+
+        // No business logic required
     }
 
     override fun onCreateView(
@@ -40,6 +51,8 @@ class CrimeListFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+
+        Log.v(TAG, "onCreateView")
 
         val view = inflater.inflate(R.layout.fragment_crime_list, container, false)
         crimeRecyclerView = view.findViewById(R.id.crime_recycler_view)
@@ -52,6 +65,8 @@ class CrimeListFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        Log.v(TAG, "onViewCreated")
+
         crimeListViewModel.crimeListLiveData.observe(
             viewLifecycleOwner,
             { crimes ->
@@ -63,18 +78,36 @@ class CrimeListFragment : Fragment() {
         )
     }
 
+    override fun onStart() {
+        super.onStart()
+        Log.v(TAG, "onStart")
+    }
+
+    override fun onStop() {
+        super.onStop()
+        Log.v(TAG, "onStop")
+    }
+
     override fun onDetach() {
         super.onDetach()
+        Log.v(TAG, "onDetach")
+
         callbacks = null
     }
 
     companion object {
         fun newInstance(): CrimeListFragment {
+
+            Log.v(TAG, "newInstance")
+
             return CrimeListFragment()
         }
     }
 
     private fun updateUI(crimes: List<Crime>) {
+
+        Log.v(TAG, "updateUI")
+
         crimeAdapter = CrimeAdapter(crimes)
         crimeRecyclerView.adapter = crimeAdapter
     }
@@ -83,16 +116,25 @@ class CrimeListFragment : Fragment() {
         RecyclerView.Adapter<CrimeHolder>() {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CrimeHolder {
+
+            Log.v(TAG, "CrimeAdapter::onCreateViewHolder")
+
             val view = layoutInflater.inflate(R.layout.list_item_crime, parent, false)
             return CrimeHolder(view)
         }
 
         override fun onBindViewHolder(holder: CrimeHolder, position: Int) {
+
+            Log.v(TAG, "CrimeAdapter::onBindViewHolder")
+
             val crime = crimes[position]
             holder.bind(crime)
         }
 
         override fun getItemCount(): Int {
+
+            Log.v(TAG, "CrimeAdapter::getItemCount")
+
             return crimes.size
         }
 
@@ -108,10 +150,16 @@ class CrimeListFragment : Fragment() {
         private val solvedImageView: ImageView = itemView.findViewById(R.id.crime_solved)
 
         init {
+
+            Log.v(TAG, "CrimeHolder::init")
+
             itemView.setOnClickListener(this)
         }
 
         fun bind(crime: Crime) {
+
+            Log.v(TAG, "CrimeHolder::bind($crime)")
+
             this.crime = crime
             titleTextView.text = this.crime.title
             dateTextView.text = this.crime.date.toString()
@@ -123,6 +171,9 @@ class CrimeListFragment : Fragment() {
         }
 
         override fun onClick(v: View?) {
+
+            Log.v(TAG, "CrimeHolder::onClick")
+
             //Toast.makeText(context, "${crime.title} pressed!", Toast.LENGTH_SHORT).show()
             callbacks?.onCrimeSelected(crime.id)
         }
