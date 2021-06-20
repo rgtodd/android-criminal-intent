@@ -33,12 +33,9 @@ class CrimeFragment : Fragment() {
         ViewModelProvider(this).get(CrimeDetailViewModel::class.java)
     }
 
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        Log.v(TAG, "onAttach")
-
-        // No business logic required
-    }
+    //
+    // LIFECYCLE - CREATED
+    //
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -89,6 +86,12 @@ class CrimeFragment : Fragment() {
 //        childFragmentManager.setFragmentResultListener(REQUEST_DATE, viewLifecycleOwner, this)
     }
 
+    // onViewStateRestored
+
+    //
+    // LIFECYCLE - CREATED -> STARTED
+    //
+
     override fun onStart() {
         super.onStart()
         Log.v(TAG, "onStart")
@@ -121,11 +124,48 @@ class CrimeFragment : Fragment() {
         }
     }
 
+    //
+    // LIFECYCLE - STARTED -> RESUMED
+    //
+
+    // onResume
+
+    //
+    // LIFECYCLE - RESUMED -> STARTED
+    //
+
+    // onPause
+
+    //
+    // LIFECYCLE - STARTED -> CREATED
+    //
+
     override fun onStop() {
         super.onStop()
         Log.v(TAG, "onStop")
 
         crimeDetailViewModel.saveCrime(crime)
+    }
+
+    // onSaveInstanceState
+
+    // onDestroyView
+
+    //
+    // LIFECYCLE - CREATED -> DESTROYED
+    //
+
+    // onDestroy
+
+    //
+    // FRAGMENT MANAGER
+    //
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        Log.v(TAG, "onAttach")
+
+        // No business logic required
     }
 
     override fun onDetach() {
