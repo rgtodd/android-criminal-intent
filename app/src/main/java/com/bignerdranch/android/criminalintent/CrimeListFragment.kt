@@ -3,9 +3,7 @@ package com.bignerdranch.android.criminalintent
 import android.content.Context
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
@@ -30,20 +28,18 @@ class CrimeListFragment : Fragment() {
     }
 
     private lateinit var crimeRecyclerView: RecyclerView
+
     private var crimeAdapter: CrimeAdapter = CrimeAdapter(emptyList())
 
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        Log.v(TAG, "onAttach")
-
-        callbacks = context as Callbacks?
-    }
+    //
+    // LIFECYCLE - CREATED
+    //
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.v(TAG, "onCreate($savedInstanceState)")
 
-        // No business logic required
+        setHasOptionsMenu(true)
     }
 
     override fun onCreateView(
@@ -78,14 +74,57 @@ class CrimeListFragment : Fragment() {
         )
     }
 
+    // onViewStateRestored
+
+    //
+    // LIFECYCLE - CREATED -> STARTED
+    //
+
     override fun onStart() {
         super.onStart()
         Log.v(TAG, "onStart")
     }
 
+    //
+    // LIFECYCLE - STARTED -> RESUMED
+    //
+
+    // onResume
+
+    //
+    // LIFECYCLE - RESUMED -> STARTED
+    //
+
+    // onPause
+
+    //
+    // LIFECYCLE - STARTED -> CREATED
+    //
+
     override fun onStop() {
         super.onStop()
         Log.v(TAG, "onStop")
+    }
+
+    // onSaveInstanceState
+
+    // onDestroyView
+
+    //
+    // LIFECYCLE - CREATED -> DESTROYED
+    //
+
+    // onDestroy
+
+    //
+    // FRAGMENT MANAGER
+    //
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        Log.v(TAG, "onAttach")
+
+        callbacks = context as Callbacks?
     }
 
     override fun onDetach() {
@@ -93,6 +132,27 @@ class CrimeListFragment : Fragment() {
         Log.v(TAG, "onDetach")
 
         callbacks = null
+    }
+
+    //
+    // MISC CALLBACKS
+    //
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        inflater.inflate(R.menu.fragment_crime_list, menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.new_crime -> {
+                val crime = Crime()
+                crimeListViewModel.addCrime(crime)
+                callbacks?.onCrimeSelected(crime.id)
+                true
+            }
+            else -> return super.onOptionsItemSelected(item)
+        }
     }
 
     companion object {
