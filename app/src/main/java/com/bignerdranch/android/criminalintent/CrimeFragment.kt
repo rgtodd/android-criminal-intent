@@ -1,9 +1,11 @@
 package com.bignerdranch.android.criminalintent
 
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.text.format.DateFormat
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -20,6 +22,7 @@ private const val TAG = "CrimeFragment"
 private const val ARG_CRIME_ID = "crime_id"
 const val DIALOG_DATE = "DialogDate"
 const val REQUEST_DATE = "RequestDate"
+private const val DATE_FORMAT = "EEE, MMM, dd"
 
 class CrimeFragment : Fragment() {
 
@@ -27,6 +30,7 @@ class CrimeFragment : Fragment() {
     private lateinit var titleField: EditText
     private lateinit var dateButton: Button
     private lateinit var solvedCheckBox: CheckBox
+    private lateinit var reportButton: Button
 
     private val crimeDetailViewModel: CrimeDetailViewModel by lazy {
         Log.v(TAG, "crimeDetailViewModel::lazy")
@@ -59,6 +63,7 @@ class CrimeFragment : Fragment() {
         titleField = view.findViewById(R.id.crime_title) as EditText
         dateButton = view.findViewById(R.id.crime_date) as Button
         solvedCheckBox = view.findViewById(R.id.crime_solved) as CheckBox
+        reportButton = view.findViewById(R.id.crime_report) as Button
 
         return view
     }
@@ -122,6 +127,16 @@ class CrimeFragment : Fragment() {
                 show(this@CrimeFragment.parentFragmentManager, DIALOG_DATE)
             }
         }
+
+        reportButton.setOnClickListener {
+            Intent(Intent.ACTION_SEND).apply {
+                type = "text/plain"
+                putExtra(Intent.EXTRA_TEXT, getCrimeReport())
+                putExtra(Intent.EXTRA_SUBJECT, getString(R.string.crime_report_subject))
+            }.also { intent ->
+                startActivity(intent)
+            }
+        }
     }
 
     //
@@ -182,6 +197,31 @@ class CrimeFragment : Fragment() {
             isChecked = crime.isSolved
             jumpDrawablesToCurrentState()
         }
+    }
+
+    private fun getCrimeReport(): String {
+
+        val solvedString = if (crime.isSolved) {
+            getString(R.string.crime_report_solved)
+        } else {
+            getString(R.string.crime_report_unsolved)
+        }
+
+        var suspectString = if (crime.suspect.isBlank()) {
+            getString(R.string.crime_report_no_suspect)
+        } else {
+            getString(R.string.crime_report_suspect, crime.suspect)
+        }
+
+        val dateString = DateFormat.format(DATE_FORMAT, crime.date).toString()
+
+        return getString(
+            R.string.crime_report,
+            crime.title,
+            dateString,
+            solvedString,
+            suspectString
+        )
     }
 
     companion object {
