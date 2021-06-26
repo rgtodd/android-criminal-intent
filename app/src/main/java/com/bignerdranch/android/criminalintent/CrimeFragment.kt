@@ -26,7 +26,7 @@ private const val TAG = "CrimeFragment"
 private const val ARG_CRIME_ID = "crime_id"
 const val DIALOG_DATE = "DialogDate"
 const val REQUEST_DATE = "RequestDate"
-private const val REQUEST_CONTACT = 1;
+//private const val REQUEST_CONTACT = 1
 private const val DATE_FORMAT = "EEE, MMM, dd"
 
 class CrimeFragment : Fragment() {
@@ -245,7 +245,7 @@ class CrimeFragment : Fragment() {
             getString(R.string.crime_report_unsolved)
         }
 
-        var suspectString = if (crime.suspect.isBlank()) {
+        val suspectString = if (crime.suspect.isBlank()) {
             getString(R.string.crime_report_no_suspect)
         } else {
             getString(R.string.crime_report_suspect, crime.suspect)

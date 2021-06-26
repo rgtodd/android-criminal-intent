@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package com.bignerdranch.android.criminalintent
 
 import android.app.Application
