@@ -2,7 +2,9 @@ package com.bignerdranch.android.criminalintent
 
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.provider.ContactsContract
 import android.text.Editable
 import android.text.TextWatcher
 import android.text.format.DateFormat
@@ -13,6 +15,8 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.CheckBox
 import android.widget.EditText
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.ViewModelProvider
@@ -22,6 +26,7 @@ private const val TAG = "CrimeFragment"
 private const val ARG_CRIME_ID = "crime_id"
 const val DIALOG_DATE = "DialogDate"
 const val REQUEST_DATE = "RequestDate"
+private const val REQUEST_CONTACT = 1;
 private const val DATE_FORMAT = "EEE, MMM, dd"
 
 class CrimeFragment : Fragment() {
@@ -31,6 +36,9 @@ class CrimeFragment : Fragment() {
     private lateinit var dateButton: Button
     private lateinit var solvedCheckBox: CheckBox
     private lateinit var reportButton: Button
+    private lateinit var suspectButton: Button
+
+    private lateinit var pickContact: ActivityResultLauncher<Void>
 
     private val crimeDetailViewModel: CrimeDetailViewModel by lazy {
         Log.v(TAG, "crimeDetailViewModel::lazy")
@@ -64,6 +72,7 @@ class CrimeFragment : Fragment() {
         dateButton = view.findViewById(R.id.crime_date) as Button
         solvedCheckBox = view.findViewById(R.id.crime_solved) as CheckBox
         reportButton = view.findViewById(R.id.crime_report) as Button
+        suspectButton = view.findViewById(R.id.crime_suspect) as Button
 
         return view
     }
@@ -137,6 +146,10 @@ class CrimeFragment : Fragment() {
                 startActivity(intent)
             }
         }
+
+        suspectButton.setOnClickListener {
+            pickContact.launch(null)
+        }
     }
 
     //
@@ -180,7 +193,29 @@ class CrimeFragment : Fragment() {
         super.onAttach(context)
         Log.v(TAG, "onAttach")
 
-        // No business logic required
+        pickContact =
+            registerForActivityResult(ActivityResultContracts.PickContact()) { uri: Uri? ->
+                if (uri != null) {
+                    val queryFields = arrayOf(ContactsContract.Contacts.DISPLAY_NAME)
+                    val cursor =
+                        requireActivity().contentResolver.query(
+                            uri,
+                            queryFields,
+                            null,
+                            null,
+                            null
+                        )
+                    cursor?.use {
+                        if (it.count != 0) {
+                            it.moveToFirst()
+                            val suspect = it.getString(0)
+                            crime.suspect = suspect
+                            crimeDetailViewModel.saveCrime(crime)
+                            suspectButton.text = suspect
+                        }
+                    }
+                }
+            }
     }
 
     override fun onDetach() {
@@ -196,6 +231,9 @@ class CrimeFragment : Fragment() {
         solvedCheckBox.apply {
             isChecked = crime.isSolved
             jumpDrawablesToCurrentState()
+        }
+        if (crime.suspect.isNotEmpty()) {
+            suspectButton.text = crime.suspect
         }
     }
 
